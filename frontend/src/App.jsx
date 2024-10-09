@@ -30,7 +30,7 @@ const App = () => {
     event.preventDefault()
     const person = persons.filter((person) => person.name === newName)
     console.log("adding person:",person)
-    if (person.length !== 0){
+    if (person.length == 0){
       const personObject = {
         name: newName,
         number: newNumber,
