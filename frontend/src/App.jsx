@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react'
-import axios from 'axios'
 import Filter from './components/filter'
 import PersonForm from './components/PersonForm'
 import Persons from './components/Persons'
@@ -28,41 +27,18 @@ const App = () => {
 
   const addName = (event) => {
     event.preventDefault()
-    const person = persons.filter((person) => person.name === newName)
-    console.log("adding person:",person)
-    if (person.length == 0){
-      const personObject = {
-        name: newName,
-        number: newNumber,
-      }
-      personService
-        .create(personObject)
-        .then(response => {
-          console.log(response)
-          setPersons(persons.concat(response))
-          setErrorMessage(
-            `Added ${personObject.name}`
-          )
-          setTimeout(() => {
-            setErrorMessage(null)
-          }, 5000)
-          
-          setNewName('')
-          setNewNumber('')
-          console.log("NEW PERSONS:",persons)
-        })
-    }
-    else{
-      //alert(`${newName} is already added to phonebook `+persons.indexOf(newName))
-      if (window.confirm(`${newName} is already added to phonebook, replace the old number with a new one?`)) {
-        //console.log("updating:",id)
-        const personToAdd = person[0]
-        const updatedPerson = { ...personToAdd, number: newNumber }
+    const checkPerson = persons.filter((person) => person.name === newName)
+    console.log("checking person:",checkPerson,checkPerson.length == 0)
+
+    const personToAdd = checkPerson[0]
+    const updatedPerson = { ...personToAdd, number: newNumber }
+
+    if (checkPerson.length !==0){
+      if (window.confirm(`${personToAdd.name} is already added to the phonebook, replace the old number with a new one ?`)){
         personService
-          .update(updatedPerson).then(response => {
-            console.log(`${personName} successfully updated${response}`)
-            setPersons(persons.filter(p => p.id !== personID))
-            console.log("NEW PERSONS:",persons)
+          .update(updatedPerson.id,updatedPerson).then(returnedPerson => {
+            console.log(`${returnedPerson.name} successfully updated`)
+            setPersons(persons.map(personItem => personItem.id !== personToAdd.id ? personItem : returnedPerson))
             setNewName('')
             setNewNumber('')
           })
@@ -71,15 +47,26 @@ const App = () => {
             setPersons(persons.filter(person => person.id !== updatedPerson.id))
             setNewName('')
             setNewNumber('')
-            setErrorMessage(
-              `[ERROR] ${updatedPerson.name} was already deleted from server`
-            )
-            setTimeout(() => {
-              setErrorMessage(null)
-            }, 5000)
           })
-        }
+      }
+    } else{
+      const personToAdd = {
+        name: newName,
+        number: newNumber
+      }
+      personService
+        .create(personToAdd)
+        .then(returnedPerson => {
+          setPersons(persons.concat(returnedPerson))
+          setNewName('')
+          setNewNumber('')
+          console.log(`${newName} was successfully added`)
+        })
+        .catch(error => {
+          console.log(error.response.data)
+        })
     }
+    
   }
 
   const deletePerson = id => {
