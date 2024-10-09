@@ -3,19 +3,8 @@ import Filter from './components/filter'
 import PersonForm from './components/PersonForm'
 import Persons from './components/Persons'
 import personService from "./services/persons"
+import Notification from './components/Notification'
 import './index.css'
-
-const Notification = ({ message }) => {
-  if (message === null) {
-    return null
-  }
-
-  return (
-    <div className='error'>
-      {message}
-    </div>
-  )
-}
 
 const App = () => {
   const [persons, setPersons] = useState([])
@@ -23,7 +12,7 @@ const App = () => {
   const [newName, setNewName] = useState('')
   const [newNumber, setNewNumber] = useState('')
   const [newFilter, setNewFilter] = useState('')
-  const [errorMessage, setErrorMessage] = useState(null)
+  const [message, setMessage] = useState(null)
 
   const addName = (event) => {
     event.preventDefault()
@@ -41,12 +30,24 @@ const App = () => {
             setPersons(persons.map(personItem => personItem.id !== personToAdd.id ? personItem : returnedPerson))
             setNewName('')
             setNewNumber('')
+            setMessage(
+              `${updatedPerson.name} was successfully updated`
+            )
+            setTimeout(() => {
+              setMessage(null)
+            }, 5000)
           })
           .catch((error) => {
             console.log(error)
             setPersons(persons.filter(person => person.id !== updatedPerson.id))
             setNewName('')
             setNewNumber('')
+            setMessage(
+              `[ERROR] ${updatedPerson.name} was already deleted from server`
+            )
+            setTimeout(() => {
+              setMessage(null)
+            }, 5000)
           })
       }
     } else{
@@ -60,9 +61,20 @@ const App = () => {
           setPersons(persons.concat(returnedPerson))
           setNewName('')
           setNewNumber('')
-          console.log(`${newName} was successfully added`)
+          setMessage(
+            `${newName} was successfully added`
+          )
+          setTimeout(() => {
+            setMessage(null)
+          }, 5000)
         })
         .catch(error => {
+          setMessage(
+            `[ERROR] ${error.response.data.error}`
+          )
+          setTimeout(() => {
+            setMessage(null)
+          }, 5000)
           console.log(error.response.data)
         })
     }
@@ -81,7 +93,12 @@ const App = () => {
         .then(response => {
           console.log(`${personName} successfully deleted${response}`)
           setPersons(persons.filter(p => p.id !== personID))
-          console.log("NEW PERSONS:",persons)
+          setMessage(
+            `${personName} was successfully deleted`
+          )
+          setTimeout(() => {
+            setMessage(null)
+          }, 5000)
         })
       }
   }
@@ -106,7 +123,7 @@ const App = () => {
   return (
     <div>
       <h2>Phonebook</h2>
-      <Notification message={errorMessage}/>
+      <Notification message={message}/>
       <Filter filter={newFilter} handleFilterChange={handleFilterChange}/>
       <h2>Add a new </h2>
       <PersonForm addName={addName} name={newName} number={newNumber} handleNameChange={handleNameChange} handleNumberChange={handleNumberChange}/>

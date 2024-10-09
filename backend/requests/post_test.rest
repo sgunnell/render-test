@@ -1,0 +1,27 @@
+GET http://localhost:3001/api/persons/
+
+### adding test
+POST https://render-test-x0kq.onrender.com/api/persons/ HTTP/1.1
+Content-Type: application/json
+
+{
+    "name": "lo",
+    "number": "12345600000"
+}
+
+###non unique test
+POST http://localhost:3001/api/persons/ HTTP/1.1
+Content-Type: application/json
+
+{
+    "name": "Arto Hellas",
+    "number": "123456"
+}
+
+
+###Delete  test
+DELETE http://localhost:3001/api/persons/4
+
+
+
+
